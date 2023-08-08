@@ -9,23 +9,23 @@ using RWAProject.Models;
 
 namespace RWAProject.Controllers
 {
-    public class UsersController : Controller
+    public class AuthController : Controller
     {
         private readonly RwaMoviesContext _context;
 
-        public UsersController(RwaMoviesContext context)
+        public AuthController(RwaMoviesContext context)
         {
             _context = context;
         }
 
-        // GET: Users
+        // GET: Auth
         public async Task<IActionResult> Index()
         {
             var rwaMoviesContext = _context.Users.Include(u => u.CountryOfResidence);
             return View(await rwaMoviesContext.ToListAsync());
         }
 
-        // GET: Users/Details/5
+        // GET: Auth/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Users == null)
@@ -44,19 +44,19 @@ namespace RWAProject.Controllers
             return View(user);
         }
 
-        // GET: Users/Create
-        public IActionResult Create()
+        // GET: Auth/Create
+        public IActionResult Register()
         {
-            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id");
+            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Name");
             return View();
         }
 
-        // POST: Users/Create
+        // POST: Auth/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CreatedAt,DeletedAt,Username,FirstName,LastName,Email,PwdHash,PwdSalt,Phone,IsConfirmed,SecurityToken,CountryOfResidenceId")] User user)
+        public async Task<IActionResult> Register([Bind("Username,FirstName,LastName,Email,PwdHash,Phone,CountryOfResidenceId")] User user)
         {
             ModelState.Remove("CountryOfResidence");
             if (ModelState.IsValid)
@@ -66,10 +66,10 @@ namespace RWAProject.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
-            return View(user);
+            return View();
         }
 
-        // GET: Users/Edit/5
+        // GET: Auth/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Users == null)
@@ -86,7 +86,7 @@ namespace RWAProject.Controllers
             return View(user);
         }
 
-        // POST: Users/Edit/5
+        // POST: Auth/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -98,7 +98,6 @@ namespace RWAProject.Controllers
                 return NotFound();
             }
 
-            ModelState.Remove("CountryOfResidence");
             if (ModelState.IsValid)
             {
                 try
@@ -123,7 +122,7 @@ namespace RWAProject.Controllers
             return View(user);
         }
 
-        // GET: Users/Delete/5
+        // GET: Auth/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Users == null)
@@ -142,7 +141,7 @@ namespace RWAProject.Controllers
             return View(user);
         }
 
-        // POST: Users/Delete/5
+        // POST: Auth/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

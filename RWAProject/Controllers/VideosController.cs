@@ -60,6 +60,7 @@ namespace RWAProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,CreatedAt,Name,Description,GenreId,TotalSeconds,StreamingUrl,ImageId")] Video video)
         {
+            ModelState.Remove("Genre");
             if (ModelState.IsValid)
             {
                 _context.Add(video);

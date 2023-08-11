@@ -24,6 +24,7 @@ namespace RWAProject.Controllers
         // GET: Auth
         public async Task<IActionResult> Login(UserVM userVM)
         {
+            ModelState.Clear();
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == userVM.Username);
 
             if (user != null)
@@ -32,13 +33,15 @@ namespace RWAProject.Controllers
 
                 if (enteredHash == user.PwdHash)
                 {
-                    HttpContext.Session.SetString("username", user.Username);
-                    Console.WriteLine("Username u session storage je: " + HttpContext.Session.GetString("username"));
+                    HttpContext.Session.SetString("userToken", user.SecurityToken!);
                     return Redirect("/Videos");
+                    //Console.WriteLine("User token is: " + HttpContext.Session.GetString("userToken"));
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Password or username are incorrect!");
                 }
             }
-
-            ModelState.AddModelError("", "Invalid username or password.");
             return View();
         }
 
@@ -66,6 +69,7 @@ namespace RWAProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(UserVM userVM)
         {
+            ModelState.Clear();
             byte[] salt = new byte[16];
             using (var rng = new RNGCryptoServiceProvider())
             {

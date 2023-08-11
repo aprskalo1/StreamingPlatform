@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using RWAProject.Middleware;
 using RWAProject.Models;
 
 namespace RWAProject.Controllers
 {
+    [TypeFilter(typeof(AuthenticationFilter))]
     public class VideosController : Controller
     {
         private readonly RwaMoviesContext _context;

@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RWAProject.Models;
 using RWAProject.ViewModels;
+using RWAProject.Middleware;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 namespace RWAProject.Controllers
 {
@@ -19,6 +23,14 @@ namespace RWAProject.Controllers
         public AuthController(RwaMoviesContext context)
         {
             _context = context;
+        }
+
+        [TypeFilter(typeof(AuthFilter))]
+        public IActionResult Logout()
+        {
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login", "Auth"); 
         }
 
         // GET: Auth
@@ -33,9 +45,17 @@ namespace RWAProject.Controllers
 
                 if (enteredHash == user.PwdHash)
                 {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.Username), 
+                    };
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var principal = new ClaimsPrincipal(identity);
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
                     HttpContext.Session.SetString("userToken", user.SecurityToken!);
                     return Redirect("/Videos");
-                    //Console.WriteLine("User token is: " + HttpContext.Session.GetString("userToken"));
                 }
                 else
                 {
@@ -44,6 +64,7 @@ namespace RWAProject.Controllers
             }
             return View();
         }
+
 
         private string HashPassword(string password, string salt)
         {

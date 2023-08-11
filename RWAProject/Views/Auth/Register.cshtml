@@ -1,4 +1,4 @@
-﻿@model RWAProject.Models.User
+﻿@model RWAProject.ViewModels.UserVM
 
 @{
     ViewData["Title"] = "Register";
@@ -32,16 +32,10 @@
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PwdHash" class="control-label"></label>
-                <input asp-for="PwdHash" class="form-control" />
-                <span asp-validation-for="PwdHash" class="text-danger"></span>
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-            <!--
-            <div class="form-group">
-                <label asp-for="PwdSalt" class="control-label"></label>
-                <input asp-for="PwdSalt" class="form-control" />
-                <span asp-validation-for="PwdSalt" class="text-danger"></span>
-            </div> -->
             <div class="form-group">
                 <label asp-for="Phone" class="control-label"></label>
                 <input asp-for="Phone" class="form-control" />
@@ -59,7 +53,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Login">Back to Login</a>
 </div>
 
 @section Scripts {

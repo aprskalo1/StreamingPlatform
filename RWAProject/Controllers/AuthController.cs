@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Security.Cryptography;
+using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RWAProject.Models;
+using RWAProject.ViewModels;
 
 namespace RWAProject.Controllers
 {
@@ -19,29 +22,34 @@ namespace RWAProject.Controllers
         }
 
         // GET: Auth
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Login(UserVM userVM)
         {
-            var rwaMoviesContext = _context.Users.Include(u => u.CountryOfResidence);
-            return View(await rwaMoviesContext.ToListAsync());
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == userVM.Username);
+
+            if (user != null)
+            {
+                string enteredHash = HashPassword(userVM.Password, user.PwdSalt);
+
+                if (enteredHash == user.PwdHash)
+                {
+                    HttpContext.Session.SetString("username", user.Username);
+                    Console.WriteLine("Username u session storage je: " + HttpContext.Session.GetString("username"));
+                    return Redirect("/Videos");
+                }
+            }
+
+            ModelState.AddModelError("", "Invalid username or password.");
+            return View();
         }
 
-        // GET: Auth/Details/5
-        public async Task<IActionResult> Details(int? id)
+        private string HashPassword(string password, string salt)
         {
-            if (id == null || _context.Users == null)
+            string combined = password + salt;
+            using (var sha256 = SHA256.Create())
             {
-                return NotFound();
+                byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(combined));
+                return Convert.ToBase64String(hashBytes);
             }
-
-            var user = await _context.Users
-                .Include(u => u.CountryOfResidence)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
         }
 
         // GET: Auth/Create
@@ -56,113 +64,47 @@ namespace RWAProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("Username,FirstName,LastName,Email,PwdHash,Phone,CountryOfResidenceId")] User user)
+        public async Task<IActionResult> Register(UserVM userVM)
         {
-            ModelState.Remove("CountryOfResidence");
-            if (ModelState.IsValid)
+            byte[] salt = new byte[16];
+            using (var rng = new RNGCryptoServiceProvider())
             {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                rng.GetBytes(salt);
             }
-            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
-            return View();
-        }
+            string saltString = Convert.ToBase64String(salt);
 
-        // GET: Auth/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.Users == null)
+            using (var sha256 = SHA256.Create())
             {
-                return NotFound();
-            }
+                byte[] passwordBytes = Encoding.UTF8.GetBytes(userVM.Password + saltString);
+                byte[] hashBytes = sha256.ComputeHash(passwordBytes);
+                string hashedPassword = Convert.ToBase64String(hashBytes);
+                string securityToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
-            return View(user);
-        }
-
-        // POST: Auth/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CreatedAt,DeletedAt,Username,FirstName,LastName,Email,PwdHash,PwdSalt,Phone,IsConfirmed,SecurityToken,CountryOfResidenceId")] User user)
-        {
-            if (id != user.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
+                User user = new User
                 {
-                    _context.Update(user);
+                    CreatedAt = DateTime.Now,
+                    DeletedAt = null,
+                    Username = userVM.Username,
+                    FirstName = userVM.FirstName,
+                    LastName = userVM.LastName,
+                    Email = userVM.Email,
+                    PwdHash = hashedPassword,
+                    PwdSalt = saltString,
+                    Phone = userVM.Phone,
+                    IsConfirmed = true,
+                    SecurityToken = securityToken,
+                    CountryOfResidenceId = userVM.CountryOfResidenceId
+                };
+
+                if (ModelState.IsValid)
+                {
+                    _context.Add(user);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Login));
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UserExists(user.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
+                return RedirectToAction(nameof(Register));
             }
-            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
-            return View(user);
-        }
-
-        // GET: Auth/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Users == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users
-                .Include(u => u.CountryOfResidence)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
-        }
-
-        // POST: Auth/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.Users == null)
-            {
-                return Problem("Entity set 'RwaMoviesContext.Users'  is null.");
-            }
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool UserExists(int id)
-        {
-          return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

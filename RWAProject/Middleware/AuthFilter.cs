@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace RWAProject.Middleware
 {
-    public class AuthenticationFilter : IAuthorizationFilter
+    public class AuthFilter : IAuthorizationFilter
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {

@@ -10,7 +10,7 @@ using RWAProject.Models;
 
 namespace RWAProject.Controllers
 {
-    [TypeFilter(typeof(AuthenticationFilter))]
+    [TypeFilter(typeof(AuthFilter))]
     public class GenresController : Controller
     {
         private readonly RwaMoviesContext _context;

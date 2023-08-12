@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Security.Claims;
 
 namespace RWAProject.Middleware
 {
@@ -7,7 +8,8 @@ namespace RWAProject.Middleware
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (!context.HttpContext.Session.TryGetValue("userToken", out _))
+            ClaimsPrincipal user = context.HttpContext.User;    
+            if (!user.Identity!.IsAuthenticated)
             {
                 context.Result = new RedirectToActionResult("Login", "Auth", null);
             }

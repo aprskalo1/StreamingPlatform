@@ -29,7 +29,6 @@ namespace RWAProject.Controllers
         public IActionResult Logout()
         {
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            HttpContext.Session.Clear();
             return RedirectToAction("Login", "Auth"); 
         }
 
@@ -54,7 +53,6 @@ namespace RWAProject.Controllers
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-                    HttpContext.Session.SetString("userToken", user.SecurityToken!);
                     return Redirect("/Videos");
                 }
                 else

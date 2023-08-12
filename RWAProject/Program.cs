@@ -24,7 +24,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
 {
-    options.LoginPath = "/Auth/Login"; // Set the login page URL
+    options.LoginPath = "/Auth/Login"; 
 });
 
 var app = builder.Build();

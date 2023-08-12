@@ -11,6 +11,7 @@ using RWAProject.Models;
 namespace RWAProject.Controllers
 {
     [TypeFilter(typeof(AuthFilter))]
+    [TypeFilter(typeof(PermissionsFilter))]
     public class UsersController : Controller
     {
         private readonly RwaMoviesContext _context;

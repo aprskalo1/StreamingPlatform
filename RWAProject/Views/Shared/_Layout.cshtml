@@ -46,7 +46,7 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item pr-3">
-                                <span class="nav-link text-dark">@User.Identity.Name</span>
+                                <a class="nav-link text-dark" asp-action="MyDetails" asp-controller="Users">@(User.Identity.Name)</a>
                             </li>
                             <li class="nav-item pr-3">
                                 <span class="nav-link text-dark">|</span>

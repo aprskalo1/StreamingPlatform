@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,7 +12,6 @@ using RWAProject.Models;
 namespace RWAProject.Controllers
 {
     [TypeFilter(typeof(AuthFilter))]
-    [TypeFilter(typeof(PermissionsFilter))]
     public class UsersController : Controller
     {
         private readonly RwaMoviesContext _context;
@@ -22,6 +22,7 @@ namespace RWAProject.Controllers
         }
 
         // GET: Users
+        [TypeFilter(typeof(PermissionsFilter))]
         public async Task<IActionResult> Index()
         {
             var rwaMoviesContext = _context.Users.Include(u => u.CountryOfResidence);
@@ -29,6 +30,7 @@ namespace RWAProject.Controllers
         }
 
         // GET: Users/Details/5
+        [TypeFilter(typeof(PermissionsFilter))]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Users == null)
@@ -47,7 +49,30 @@ namespace RWAProject.Controllers
             return View(user);
         }
 
+        //get details for logged in user
+        public async Task<IActionResult> MyDetails()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users
+                .Include(u => u.CountryOfResidence)
+                .FirstOrDefaultAsync(m => m.Id == int.Parse(userId));
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View("MyDetails", user);
+        }
+
         // GET: Users/Create
+        [TypeFilter(typeof(PermissionsFilter))]
         public IActionResult Create()
         {
             ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id");
@@ -59,6 +84,7 @@ namespace RWAProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [TypeFilter(typeof(PermissionsFilter))]
         public async Task<IActionResult> Create([Bind("CreatedAt,DeletedAt,Username,FirstName,LastName,Email,PwdHash,PwdSalt,Phone,IsConfirmed,SecurityToken,CountryOfResidenceId")] User user)
         {
             ModelState.Remove("CountryOfResidence");
@@ -73,6 +99,7 @@ namespace RWAProject.Controllers
         }
 
         // GET: Users/Edit/5
+        [TypeFilter(typeof(PermissionsFilter))]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Users == null)
@@ -94,6 +121,7 @@ namespace RWAProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [TypeFilter(typeof(PermissionsFilter))]
         public async Task<IActionResult> Edit(int id, [Bind("Id,CreatedAt,DeletedAt,Username,FirstName,LastName,Email,PwdHash,PwdSalt,Phone,IsConfirmed,SecurityToken,CountryOfResidenceId")] User user)
         {
             if (id != user.Id)
@@ -127,6 +155,7 @@ namespace RWAProject.Controllers
         }
 
         // GET: Users/Delete/5
+        [TypeFilter(typeof(PermissionsFilter))]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Users == null)
@@ -146,6 +175,7 @@ namespace RWAProject.Controllers
         }
 
         // POST: Users/Delete/5
+        [TypeFilter(typeof(PermissionsFilter))]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

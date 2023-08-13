@@ -57,7 +57,7 @@
 <div>
     @if (User.Identity!.Name!.ToLower() == "admin")
     {
-        <a asp-action="Edit" asp-route-id="@Model.Id">Edit |</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-danger">Edit</a>
     }
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" class="btn btn-primary">Back to List</a>
 </div>

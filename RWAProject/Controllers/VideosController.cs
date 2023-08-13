@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RWAProject.Middleware;
 using RWAProject.Models;
 
@@ -104,6 +105,7 @@ namespace RWAProject.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove("Genre");
             if (ModelState.IsValid)
             {
                 try

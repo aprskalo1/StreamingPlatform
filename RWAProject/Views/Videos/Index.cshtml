@@ -34,7 +34,10 @@
                 Date
             </th>
             <th>
-                @Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter=ViewBag.CurrentFilter })
+                <a href="@Url.Action("Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })"
+                   style="text-decoration: none">
+                    Name
+                </a>
             </th>
             <th>
                 Description
@@ -46,7 +49,10 @@
                 Streaming Url
             </th>
             <th>
-                @Html.ActionLink("Genre", "Index", new { sortOrder = ViewBag.GenreSortParm, currentFilter=ViewBag.CurrentFilter })
+                <a href="@Url.Action("Index", new { sortOrder = ViewBag.GenreSortParm, currentFilter = ViewBag.CurrentFilter })"
+                   style="text-decoration: none;">
+                    Genre
+                </a>
             </th>
             <th>
                 Image

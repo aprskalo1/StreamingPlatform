@@ -92,7 +92,7 @@ namespace RWAProject.Controllers
         // GET: Videos/Create
         public IActionResult Create()
         {
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Id");
+            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name");
             ViewData["ImageId"] = new SelectList(_context.Images, "Id", "Id");
             return View();
         }
@@ -111,7 +111,7 @@ namespace RWAProject.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Id", video.GenreId);
+            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name", video.GenreId);
             ViewData["ImageId"] = new SelectList(_context.Images, "Id", "Id", video.ImageId);
             return View(video);
         }

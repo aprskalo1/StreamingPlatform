@@ -95,14 +95,5 @@
         </tr>
 }
     </tbody>
-</table> 
-<div class="pagination d-flex justify-content-center">
-    <ul class="pagination">
-        @for (var pageNumber = 1; pageNumber <= Model.PageCount; pageNumber++)
-        {
-            <li class="page-item @(Model.PageNumber == pageNumber ? "active" : "")">
-                <a class="page-link" href="@Url.Action("Index", new { page = pageNumber, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter })">@pageNumber</a>
-            </li>
-        }
-    </ul>
-</div>
+</table>
+<partial name="_PagingControls" />

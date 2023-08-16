@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RWAProject.Middleware;
 using RWAProject.Models;
+using PagedList;
 
 namespace RWAProject.Controllers
 {
@@ -21,30 +22,17 @@ namespace RWAProject.Controllers
         }
 
         // GET: Countries
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
-              return _context.Countries != null ? 
-                          View(await _context.Countries.ToListAsync()) :
-                          Problem("Entity set 'RwaMoviesContext.Countries'  is null.");
+            IQueryable<Country> countriesQuery = _context.Countries;
+
+            int pageSize = 5; 
+            int pageNumber = (page ?? 1);
+
+            var countries = await countriesQuery.ToListAsync();
+            return View(countries.ToPagedList(pageNumber, pageSize));
         }
 
-        // GET: Countries/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Countries == null)
-            {
-                return NotFound();
-            }
-
-            var country = await _context.Countries
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (country == null)
-            {
-                return NotFound();
-            }
-
-            return View(country);
-        }
 
         // GET: Countries/Create
         public IActionResult Create()
@@ -159,6 +147,22 @@ namespace RWAProject.Controllers
         private bool CountryExists(int id)
         {
           return (_context.Countries?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null || _context.Countries == null)
+            {
+                return NotFound();
+            }
+            var country = await _context.Countries
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (country == null)
+            {
+                return NotFound();
+            }
+            
+            return View(country);
         }
     }
 }

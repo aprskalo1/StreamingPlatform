@@ -1,4 +1,6 @@
-﻿@model IEnumerable<RWAProject.Models.Video>
+﻿@model PagedList.IPagedList<RWAProject.Models.Video>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewData["Title"] = "Index";
@@ -6,35 +8,48 @@
 
 <h1>Videos</h1>
 
-<p>
-    @if (User.Identity!.Name!.ToLower() == "admin")
-    {
-        <a asp-action="Create" class="btn btn-primary">Create New</a>
-    }
-</p>
+<div class="d-flex justify-content-between">
+    <p>
+        @if (User.Identity!.Name!.ToLower() == "admin")
+        {
+            <a asp-action="Create" class="btn btn-primary">Create New</a>
+        }
+
+        @using (Html.BeginForm("Index", "Videos", FormMethod.Get, new { @class = "form-inline my-2 my-lg-0" }))
+        {
+            <div class="input-group">
+                @Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control mr-sm-2", placeholder = "Find by name" })
+                <div class="input-group-append">
+                    <button class="btn btn-primary my-2 my-sm-0" style="margin-left: 5px" type="submit">Search</button>
+                </div>
+            </div>
+        }
+
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
+                Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter=ViewBag.CurrentFilter })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                Description
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TotalSeconds)
+                Duration
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StreamingUrl)
+                Streaming Url
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Genre)
+                @Html.ActionLink("Genre", "Index", new { sortOrder = ViewBag.GenreSortParm, currentFilter=ViewBag.CurrentFilter })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Image)
+                Image
             </th>
             <th></th>
         </tr>
@@ -74,4 +89,14 @@
         </tr>
 }
     </tbody>
-</table>
+</table> 
+<div class="pagination d-flex justify-content-center">
+    <ul class="pagination">
+        @for (var pageNumber = 1; pageNumber <= Model.PageCount; pageNumber++)
+        {
+            <li class="page-item @(Model.PageNumber == pageNumber ? "active" : "")">
+                <a class="page-link" href="@Url.Action("Index", new { page = pageNumber, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter })">@pageNumber</a>
+            </li>
+        }
+    </ul>
+</div>

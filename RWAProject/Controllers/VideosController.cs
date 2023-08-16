@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RWAProject.Middleware;
 using RWAProject.Models;
+using PagedList;
 
 namespace RWAProject.Controllers
 {
@@ -22,11 +23,51 @@ namespace RWAProject.Controllers
         }
 
         // GET: Videos
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
-            var rwaMoviesContext = _context.Videos.Include(v => v.Genre).Include(v => v.Image);
-            return View(await rwaMoviesContext.ToListAsync());
+            ViewBag.currnetSort = sortOrder;    
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["GenreSortParm"] = sortOrder == "Genre" ? "genre_desc" : "Genre"; // New line for genre sorting
+
+            IQueryable<Video> videosQuery = _context.Videos.Include(v => v.Genre).Include(v => v.Image);
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                videosQuery = videosQuery.Where(v => v.Name.Contains(searchString));
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    videosQuery = videosQuery.OrderByDescending(v => v.Name);
+                    break;
+                case "Genre": // Sorting by genre ascending
+                    videosQuery = videosQuery.OrderBy(v => v.Genre.Name);
+                    break;
+                case "genre_desc": // Sorting by genre descending
+                    videosQuery = videosQuery.OrderByDescending(v => v.Genre.Name);
+                    break;
+                default:
+                    videosQuery = videosQuery.OrderBy(v => v.Name);
+                    break;
+            }
+
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+
+            var videos = await videosQuery.ToListAsync();
+            return View(videos.ToPagedList(pageNumber, pageSize));
         }
+
 
         // GET: Videos/Details/5
         public async Task<IActionResult> Details(int? id)

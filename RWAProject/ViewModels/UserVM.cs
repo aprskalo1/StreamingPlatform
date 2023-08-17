@@ -1,4 +1,7 @@
-﻿namespace RWAProject.ViewModels
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+namespace RWAProject.ViewModels
 {
     public class UserVM
     {
@@ -14,6 +17,7 @@
 
         public string? Phone { get; set; }
 
+        [DisplayName("Country")]
         public int CountryOfResidenceId { get; set; }
     }
 }

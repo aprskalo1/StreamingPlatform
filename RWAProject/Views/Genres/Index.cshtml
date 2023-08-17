@@ -9,7 +9,7 @@
 <p>
     @if (User.Identity!.Name!.ToLower() == "admin")
     {
-        <a asp-action="Create">Create New</a>
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
     }
 </p>
 <table class="table">
@@ -33,14 +33,16 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
-                <td>
-                    @if (User.Identity!.Name!.ToLower() == "admin")
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit |</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete |</a>
-                    }
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                </td>
+            <td>
+                    <div class="d-flex justify-content-end">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary" style="margin-right: 5px">Details</a>
+                        @if (User.Identity!.Name!.ToLower() == "admin")
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary" style="margin-right: 5px">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                        }
+                    </div>
+            </td>
         </tr>
 }
     </tbody>

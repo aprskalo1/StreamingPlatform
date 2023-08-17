@@ -79,18 +79,20 @@
                 @Html.DisplayFor(modelItem => item.StreamingUrl)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Genre.Id)
+                @Html.DisplayFor(modelItem => item.Genre.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Image!.Id)
             </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">Details</a>
-                    @if (User.Identity!.Name!.ToLower() == "admin")
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
-                    }
+                    <div class="d-flex justify-content-end">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary" style="margin-right: 5px">Details</a>
+                        @if (User.Identity!.Name!.ToLower() == "admin")
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary" style="margin-right: 5px">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                        }
+                    </div>
                 </td>
         </tr>
 }

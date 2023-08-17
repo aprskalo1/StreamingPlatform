@@ -129,7 +129,7 @@ namespace RWAProject.Controllers
             {
                 return NotFound();
             }
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Id", video.GenreId);
+            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name", video.GenreId);
             ViewData["ImageId"] = new SelectList(_context.Images, "Id", "Id", video.ImageId);
             return View(video);
         }
@@ -167,7 +167,7 @@ namespace RWAProject.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Id", video.GenreId);
+            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name", video.GenreId);
             ViewData["ImageId"] = new SelectList(_context.Images, "Id", "Id", video.ImageId);
             return View(video);
         }

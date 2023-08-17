@@ -45,7 +45,7 @@
                 <label asp-for="CountryOfResidenceId" class="control-label"></label>
                 <select asp-for="CountryOfResidenceId" class ="form-control" asp-items="ViewBag.CountryOfResidenceId"></select>
             </div>
-            <div class="form-group">
+            <div class="form-group pt-2">
                 <input type="submit" value="Register" class="btn btn-primary" />
             </div>
         </form>
@@ -53,7 +53,7 @@
 </div>
 
 <div>
-    <a asp-action="Login">Back to Login</a>
+    <a asp-action="Login" style="text-decoration: none">Back to Login</a>
 </div>
 
 @section Scripts {

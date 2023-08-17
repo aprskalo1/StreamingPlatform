@@ -24,10 +24,4 @@
         </dd>
     </dl>
 </div>
-<div>
-    @if (User.Identity!.Name!.ToLower() == "admin")
-    {
-        <a asp-action="Edit" asp-route-id="@Model.Id">Edit |</a>
-    }
-    <a asp-action="Index">Back to List</a>
-</div>
+<partial name="_DetailsControls" />

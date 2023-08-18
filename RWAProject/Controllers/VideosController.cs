@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RWAProject.Middleware;
 using RWAProject.Models;
 using PagedList;
+using Microsoft.AspNetCore.Http.Extensions;
+using System.Text;
 
 namespace RWAProject.Controllers
 {
@@ -27,7 +29,7 @@ namespace RWAProject.Controllers
         {
             ViewBag.currnetSort = sortOrder;    
             ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["GenreSortParm"] = sortOrder == "Genre" ? "genre_desc" : "Genre"; // New line for genre sorting
+            ViewData["GenreSortParm"] = sortOrder == "Genre" ? "genre_desc" : "Genre"; 
 
             IQueryable<Video> videosQuery = _context.Videos.Include(v => v.Genre).Include(v => v.Image);
 
@@ -42,7 +44,7 @@ namespace RWAProject.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                videosQuery = videosQuery.Where(v => v.Name.Contains(searchString));
+                videosQuery = videosQuery.Where(v => v.Name.Contains(searchString) || v.Genre.Name.Contains(searchString));
             }
 
             switch (sortOrder)

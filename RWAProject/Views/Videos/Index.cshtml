@@ -9,7 +9,6 @@
 <h1>Videos</h1>
 
 <div class="d-flex justify-content-between">
-    <p>
         @if (User.Identity!.Name!.ToLower() == "admin")
         {
             <a asp-action="Create" class="btn btn-primary">Create New</a>
@@ -18,13 +17,13 @@
         @using (Html.BeginForm("Index", "Videos", FormMethod.Get, new { @class = "form-inline my-2 my-lg-0" }))
         {
             <div class="input-group">
-                @Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control mr-sm-2", placeholder = "Find by name" })
+                @Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control mr-sm-2", placeholder = "Find by name or genre" })
+
                 <div class="input-group-append">
-                    <button class="btn btn-primary my-2 my-sm-0" style="margin-left: 5px" type="submit">Search</button>
+                    <button class="btn btn-primary my-2 my-sm-0" type="submit">Search</button>
                 </div>
             </div>
         }
-
 </div>
 
 <table class="table">

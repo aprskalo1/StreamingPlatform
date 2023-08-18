@@ -23,10 +23,20 @@ namespace RWAProject.Controllers
 
         // GET: Users
         [TypeFilter(typeof(PermissionsFilter))]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var rwaMoviesContext = _context.Users.Include(u => u.CountryOfResidence);
-            return View(await rwaMoviesContext.ToListAsync());
+            IQueryable<User> usersQuery = _context.Users.Include(u => u.CountryOfResidence);
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                usersQuery = usersQuery.Where(u => u.Username.Contains(searchString) || 
+                    u.FirstName.Contains(searchString) || 
+                    u.LastName.Contains(searchString) || 
+                    u.Email.Contains(searchString) ||
+                    u.CountryOfResidence.Name.Contains(searchString));
+            }
+
+            return View(await usersQuery.ToListAsync());
         }
 
         // GET: Users/Details/5

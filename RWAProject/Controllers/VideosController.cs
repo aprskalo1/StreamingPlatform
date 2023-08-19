@@ -25,12 +25,8 @@ namespace RWAProject.Controllers
         }
 
         // GET: Videos
-        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
+        public async Task<IActionResult> Index(string currentFilter, string searchString, int? page)
         {
-            ViewBag.currnetSort = sortOrder;    
-            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["GenreSortParm"] = sortOrder == "Genre" ? "genre_desc" : "Genre"; 
-
             IQueryable<Video> videosQuery = _context.Videos.Include(v => v.Genre).Include(v => v.Image);
 
             if (searchString != null)
@@ -47,23 +43,7 @@ namespace RWAProject.Controllers
                 videosQuery = videosQuery.Where(v => v.Name.Contains(searchString) || v.Genre.Name.Contains(searchString));
             }
 
-            switch (sortOrder)
-            {
-                case "name_desc":
-                    videosQuery = videosQuery.OrderByDescending(v => v.Name);
-                    break;
-                case "Genre": // Sorting by genre ascending
-                    videosQuery = videosQuery.OrderBy(v => v.Genre.Name);
-                    break;
-                case "genre_desc": // Sorting by genre descending
-                    videosQuery = videosQuery.OrderByDescending(v => v.Genre.Name);
-                    break;
-                default:
-                    videosQuery = videosQuery.OrderBy(v => v.Name);
-                    break;
-            }
-
-            int pageSize = 3;
+            int pageSize = 6;
             int pageNumber = (page ?? 1);
 
             var videos = await videosQuery.ToListAsync();

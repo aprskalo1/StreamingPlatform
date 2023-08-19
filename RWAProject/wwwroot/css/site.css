@@ -16,3 +16,11 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.card-img-top {
+    transition: transform 0.3s;
+}
+
+    .card-img-top:hover {
+        transform: scale(1.1);
+    }

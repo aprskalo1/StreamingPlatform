@@ -8,11 +8,13 @@
 
 <h1>Videos</h1>
 
-<div class="d-flex justify-content-between">
+<div class="d-flex justify-content-between pb-3">
+    <p>
         @if (User.Identity!.Name!.ToLower() == "admin")
         {
             <a asp-action="Create" class="btn btn-primary">Create New</a>
         }
+    </p>
 
         @using (Html.BeginForm("Index", "Videos", FormMethod.Get, new { @class = "form-inline my-2 my-lg-0" }))
         {
@@ -26,75 +28,28 @@
         }
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Date
-            </th>
-            <th>
-                <a href="@Url.Action("Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })"
-                   style="text-decoration: none">
-                    Name
-                </a>
-            </th>
-            <th>
-                Description
-            </th>
-            <th>
-                Duration
-            </th>
-            <th>
-                Streaming Url
-            </th>
-            <th>
-                <a href="@Url.Action("Index", new { sortOrder = ViewBag.GenreSortParm, currentFilter = ViewBag.CurrentFilter })"
-                   style="text-decoration: none;">
-                    Genre
-                </a>
-            </th>
-            <th>
-                Image
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalSeconds)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StreamingUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Genre.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Image!.Id)
-            </td>
-                <td>
-                    <div class="d-flex justify-content-end">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary" style="margin-right: 5px">Details</a>
-                        @if (User.Identity!.Name!.ToLower() == "admin")
-                        {
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary" style="margin-right: 5px">Edit</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
-                        }
-                    </div>
-                </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="position-relative overflow-hidden">
+                    <a href="@Url.Action("Details", new { id = item.Id })">
+                        <img src="@(item.Image?.Content)" class="card-img-top" alt="Video image not available">
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">@item.Name</h5>
+                    <p class="card-text">@item.Description</p>
+                    @if (User.Identity!.Name!.ToLower() == "admin")
+                    {
+                        <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-secondary">Edit</a>
+                        <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-danger">Delete</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
 <partial name="_PagingControls" />

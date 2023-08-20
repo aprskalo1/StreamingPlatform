@@ -164,8 +164,19 @@ namespace RWAProject.Controllers
             {
                 return NotFound();
             }
-            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
-            return View(user);
+
+            var userVM = new UserVM
+            {
+                Username = user.Username,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Phone = user.Phone,
+                CountryOfResidenceId = user.CountryOfResidenceId
+            };
+
+            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Name", user.CountryOfResidenceId);
+            return View(userVM);
         }
 
         // POST: Users/Edit/5
@@ -174,24 +185,32 @@ namespace RWAProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [TypeFilter(typeof(PermissionsFilter))]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CreatedAt,DeletedAt,Username,FirstName,LastName,Email,PwdHash,PwdSalt,Phone,IsConfirmed,SecurityToken,CountryOfResidenceId")] User user)
+        public async Task<IActionResult> Edit(int id, UserVM userVM)
         {
-            if (id != user.Id)
-            {
-                return NotFound();
-            }
-
-            ModelState.Remove("CountryOfResidence");
+            ModelState.Remove("Password");
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var user = await _context.Users.FindAsync(id);
+                    if (user == null)
+                    {
+                        return NotFound();
+                    }
+
+                    user.Username = userVM.Username;
+                    user.FirstName = userVM.FirstName;
+                    user.LastName = userVM.LastName;
+                    user.Email = userVM.Email;
+                    user.Phone = userVM.Phone;
+                    user.CountryOfResidenceId = userVM.CountryOfResidenceId;
+
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.Id))
+                    if (!UserExists(id)) 
                     {
                         return NotFound();
                     }
@@ -202,8 +221,8 @@ namespace RWAProject.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
-            return View(user);
+            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", userVM.CountryOfResidenceId);
+            return View(userVM);
         }
 
         // GET: Users/Delete/5

@@ -90,6 +90,12 @@ namespace RWAProject.Controllers
         public async Task<IActionResult> Register(UserVM userVM)
         {
             ModelState.Clear();
+
+            if (_context.Users.Any(u => u.Username == userVM.Username))
+            {
+                ModelState.AddModelError("Username", "Username already exists.");
+            }
+
             byte[] salt = new byte[16];
             using (var rng = new RNGCryptoServiceProvider())
             {
@@ -127,7 +133,7 @@ namespace RWAProject.Controllers
                     return RedirectToAction(nameof(Login));
                 }
                 ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
-                return RedirectToAction(nameof(Register));
+                return View(userVM);
             }
         }
     }

@@ -103,6 +103,12 @@ namespace RWAProject.Controllers
         public async Task<IActionResult> Create(UserVM userVM)
         {
             ModelState.Clear();
+
+            if (_context.Users.Any(u => u.Username == userVM.Username))
+            {
+                ModelState.AddModelError("Username", "Username already exists.");
+            }
+
             byte[] salt = new byte[16];
             using (var rng = new RNGCryptoServiceProvider())
             {

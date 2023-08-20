@@ -4,11 +4,11 @@
     ViewData["Title"] = "Details";
 }
 
-<div class="m-4 container d-flex align-content-center">
+<div class="container d-flex justify-content-center p-4">
     <div class="card d-flex flex-row">
-        <div class="position-relative overflow-hidden">
+        <div class="card-img-container">
             <a href="@Model.StreamingUrl">
-                <img src="@(Model.Image?.Content)" class="card-img-top" alt="Video image not available">
+                <img src="@(Model.Image?.Content)" class="card-img-top img-fluid" alt="Video image not available">
             </a>
         </div>
         <div class="card-body">
@@ -48,6 +48,9 @@
                 </dt>
                 <dd class="col-sm-10">
                     @Html.DisplayFor(model => model.Genre.Name)
+                </dd>
+                <dd class="col-sm-10 mt-3">
+                    <a href="@Model.StreamingUrl" class="btn btn-primary">Watch Now!</a>
                 </dd>
             </dl>
         </div>

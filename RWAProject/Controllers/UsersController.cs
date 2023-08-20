@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
+using NuGet.Protocol.Plugins;
 using RWAProject.Middleware;
 using RWAProject.Models;
+using RWAProject.ViewModels;
 
 namespace RWAProject.Controllers
 {
@@ -85,7 +90,7 @@ namespace RWAProject.Controllers
         [TypeFilter(typeof(PermissionsFilter))]
         public IActionResult Create()
         {
-            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id");
+            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Name");
             return View();
         }
 
@@ -95,17 +100,48 @@ namespace RWAProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [TypeFilter(typeof(PermissionsFilter))]
-        public async Task<IActionResult> Create([Bind("CreatedAt,DeletedAt,Username,FirstName,LastName,Email,PwdHash,PwdSalt,Phone,IsConfirmed,SecurityToken,CountryOfResidenceId")] User user)
+        public async Task<IActionResult> Create(UserVM userVM)
         {
-            ModelState.Remove("CountryOfResidence");
-            if (ModelState.IsValid)
+            ModelState.Clear();
+            byte[] salt = new byte[16];
+            using (var rng = new RNGCryptoServiceProvider())
             {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                rng.GetBytes(salt);
             }
-            ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
-            return View(user);
+            string saltString = Convert.ToBase64String(salt);
+
+            using (var sha256 = SHA256.Create())
+            {
+                byte[] passwordBytes = Encoding.UTF8.GetBytes(userVM.Password + saltString);
+                byte[] hashBytes = sha256.ComputeHash(passwordBytes);
+                string hashedPassword = Convert.ToBase64String(hashBytes);
+                string securityToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+
+                User user = new User
+                {
+                    CreatedAt = DateTime.Now,
+                    DeletedAt = null,
+                    Username = userVM.Username,
+                    FirstName = userVM.FirstName,
+                    LastName = userVM.LastName,
+                    Email = userVM.Email,
+                    PwdHash = hashedPassword,
+                    PwdSalt = saltString,
+                    Phone = userVM.Phone,
+                    IsConfirmed = true,
+                    SecurityToken = securityToken,
+                    CountryOfResidenceId = userVM.CountryOfResidenceId
+                };
+
+                if (ModelState.IsValid)
+                {
+                    _context.Add(user);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("Index", "Users");
+                }
+                ViewData["CountryOfResidenceId"] = new SelectList(_context.Countries, "Id", "Id", user.CountryOfResidenceId);
+                return View(userVM);
+            }
         }
 
         // GET: Users/Edit/5

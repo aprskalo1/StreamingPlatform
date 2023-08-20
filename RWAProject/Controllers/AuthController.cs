@@ -13,6 +13,7 @@ using RWAProject.Middleware;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace RWAProject.Controllers
 {
@@ -58,7 +59,7 @@ namespace RWAProject.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Password or username are incorrect!");
+                    ModelState.AddModelError("Password", "Password or username are incorrect!");
                 }
             }
             return View();
@@ -136,5 +137,48 @@ namespace RWAProject.Controllers
                 return View(userVM);
             }
         }
+
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(UserVM userVM)
+        {
+            var username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+            if (user != null)
+            {
+                byte[] salt = new byte[16];
+                using (var rng = new RNGCryptoServiceProvider())
+                {
+                    rng.GetBytes(salt);
+                }
+                string saltString = Convert.ToBase64String(salt);
+
+                using (var sha256 = SHA256.Create())
+                {
+                    byte[] passwordBytes = Encoding.UTF8.GetBytes(userVM.Password + saltString);
+                    byte[] hashBytes = sha256.ComputeHash(passwordBytes);
+                    string hashedPassword = Convert.ToBase64String(hashBytes);
+
+                    user.PwdHash = hashedPassword;
+                    user.PwdSalt = saltString;
+
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Index", "Videos");
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "User not found.");
+                return View(userVM);
+            }
+        }
+
     }
 }

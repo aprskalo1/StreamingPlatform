@@ -32,6 +32,11 @@ namespace RWAProject.Controllers
         {
             IQueryable<User> usersQuery = _context.Users.Include(u => u.CountryOfResidence);
 
+            if (String.IsNullOrEmpty(searchString) && HttpContext.Session.GetString("userSearchString") != null)
+            {
+                searchString = HttpContext.Session.GetString("userSearchString")!;
+            }
+
             if (!String.IsNullOrEmpty(searchString))
             {
                 usersQuery = usersQuery.Where(u => u.Username.Contains(searchString) || 
@@ -39,6 +44,8 @@ namespace RWAProject.Controllers
                     u.LastName.Contains(searchString) || 
                     u.Email.Contains(searchString) ||
                     u.CountryOfResidence.Name.Contains(searchString));
+
+                HttpContext.Session.SetString("userSearchString", searchString);
             }
 
             return View(await usersQuery.ToListAsync());

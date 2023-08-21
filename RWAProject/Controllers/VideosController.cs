@@ -29,6 +29,11 @@ namespace RWAProject.Controllers
         {
             IQueryable<Video> videosQuery = _context.Videos.Include(v => v.Genre).Include(v => v.Image);
 
+            if (!(HttpContext.Session.GetString("videosSearchString") == null))
+            {
+                currentFilter = HttpContext.Session.GetString("videosSearchString")!;
+            }
+
             if (searchString != null)
             {
                 page = 1;
@@ -41,6 +46,7 @@ namespace RWAProject.Controllers
             if (!String.IsNullOrEmpty(searchString))
             {
                 videosQuery = videosQuery.Where(v => v.Name.Contains(searchString) || v.Genre.Name.Contains(searchString));
+                HttpContext.Session.SetString("videosSearchString", searchString);
             }
 
             int pageSize = 6;

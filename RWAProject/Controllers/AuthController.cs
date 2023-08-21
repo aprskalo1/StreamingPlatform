@@ -30,6 +30,9 @@ namespace RWAProject.Controllers
         public IActionResult Logout()
         {
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Remove("userSearchString");
+            HttpContext.Session.Remove("videosSearchString");
+
             return RedirectToAction("Login", "Auth"); 
         }
 

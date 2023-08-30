@@ -6,7 +6,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<RwaMoviesContext>(options =>
 {
-    //options.UseSqlServer(builder.Configuration.GetConnectionString("Task06ConnStr"));
     options.UseSqlServer("server=.;Database=RwaMovies;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true");
 });
 

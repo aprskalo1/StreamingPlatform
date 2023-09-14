@@ -30,3 +30,30 @@
         <partial name="_DeleteControls" />
     </form>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $("form").submit(function (e) {
+            e.preventDefault();
+            var formData = $(this).serialize();
+            $.ajax({
+                url: "/Genres/Delete",
+                type: "POST",
+                data: formData,
+                success: function (success) {
+                    if (success) {
+                        window.location.href = "/Genres/Index";
+                    }
+                    console.log(success);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        });
+    </script>
+}

@@ -57,15 +57,15 @@ namespace RWAProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description")] Genre genre)
+        public async Task<bool> Create([Bind("Id,Name,Description")] Genre genre)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(genre);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return true;
             }
-            return View(genre);
+            return false;
         }
 
         // GET: Genres/Edit/5
@@ -89,11 +89,11 @@ namespace RWAProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Genre genre)
+        public async Task<bool> Edit(int id, [Bind("Id,Name,Description")] Genre genre)
         {
             if (id != genre.Id)
             {
-                return NotFound();
+                return false;
             }
 
             if (ModelState.IsValid)
@@ -107,16 +107,16 @@ namespace RWAProject.Controllers
                 {
                     if (!GenreExists(genre.Id))
                     {
-                        return NotFound();
+                        return false;
                     }
                     else
                     {
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return true;
             }
-            return View(genre);
+            return false;
         }
 
         // GET: Genres/Delete/5
@@ -140,11 +140,11 @@ namespace RWAProject.Controllers
         // POST: Genres/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<bool> DeleteConfirmed(int id)
         {
             if (_context.Genres == null)
             {
-                return Problem("Entity set 'RwaMoviesContext.Genres'  is null.");
+                return false;
             }
             var genre = await _context.Genres.FindAsync(id);
             if (genre != null)
@@ -153,7 +153,7 @@ namespace RWAProject.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return true;
         }
 
         private bool GenreExists(int id)

@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using RWAProject.Models;
+using RWAProjectApi.DTOs;
 
 namespace RWAProjectApi.Controllers
 {
@@ -14,20 +17,22 @@ namespace RWAProjectApi.Controllers
     public class VideosController : ControllerBase
     {
         private readonly RwaMoviesContext _context;
+        private readonly IMapper _mapper;
 
-        public VideosController(RwaMoviesContext context)
+        public VideosController(RwaMoviesContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Videos
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Video>>> GetVideos()
         {
-          if (_context.Videos == null)
-          {
-              return NotFound();
-          }
+            if (_context.Videos == null)
+            {
+                return NotFound();
+            }
             return await _context.Videos.ToListAsync();
         }
 
@@ -35,10 +40,10 @@ namespace RWAProjectApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Video>> GetVideo(int id)
         {
-          if (_context.Videos == null)
-          {
-              return NotFound();
-          }
+            if (_context.Videos == null)
+            {
+                return NotFound();
+            }
             var video = await _context.Videos.FindAsync(id);
 
             if (video == null)
@@ -83,12 +88,18 @@ namespace RWAProjectApi.Controllers
         // POST: api/Videos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Video>> PostVideo(Video video)
+        public async Task<ActionResult<Video>> PostVideo(VideoDTO videoDTO)
         {
-          if (_context.Videos == null)
-          {
-              return Problem("Entity set 'RwaMoviesContext.Videos'  is null.");
-          }
+            if (_context.Videos == null)
+            {
+                return Problem("Entity set 'RwaMoviesContext.Videos'  is null.");
+            }
+            
+            var video = _mapper.Map<Video>(videoDTO);    
+            if (!videoDTO.VideoTags.IsNullOrEmpty())
+            {
+                video.VideoTags = videoDTO.VideoTags!.Select(id => new VideoTag { TagId = id }).ToList();
+            }
             _context.Videos.Add(video);
             await _context.SaveChangesAsync();
 

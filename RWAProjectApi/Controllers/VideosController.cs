@@ -29,12 +29,58 @@ namespace RWAProjectApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Video>>> GetVideos()
         {
-            if (_context.Videos == null)
-            {
-                return NotFound();
-            }
             return await _context.Videos.ToListAsync();
         }
+
+        [HttpGet("action")]
+        public async Task<ActionResult<IEnumerable<Video>>> SearchVideos(
+            string searchString,
+            string sortBy = "id",
+            string sortOrder = "asc",
+            int pageNumber = 1,
+            int pageSize = 10)
+        {
+            IQueryable<Video> videosQuery = _context.Videos;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                videosQuery = videosQuery.Where(v => v.Name.Contains(searchString));
+            }
+
+            if (!new[] { "id", "name", "totaltime" }.Contains(sortBy.ToLower()))
+            {
+                sortBy = "id";
+            }
+
+            switch (sortBy.ToLower())
+            {
+                case "name":
+                    videosQuery = sortOrder.ToLower() == "desc"
+                        ? videosQuery.OrderByDescending(v => v.Name)
+                        : videosQuery.OrderBy(v => v.Name);
+                    break;
+                case "totaltime":
+                    videosQuery = sortOrder.ToLower() == "desc"
+                        ? videosQuery.OrderByDescending(v => v.TotalSeconds)
+                        : videosQuery.OrderBy(v => v.TotalSeconds);
+                    break;
+                default: // Sort by id
+                    videosQuery = sortOrder.ToLower() == "desc"
+                        ? videosQuery.OrderByDescending(v => v.Id)
+                        : videosQuery.OrderBy(v => v.Id);
+                    break;
+            }
+
+            int itemsToSkip = (pageNumber - 1) * pageSize;
+
+            var videos = await videosQuery
+                .Skip(itemsToSkip)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return videos;
+        }
+
 
         // GET: api/Videos/5
         [HttpGet("{id}")]

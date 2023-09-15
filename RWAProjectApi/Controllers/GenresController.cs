@@ -35,19 +35,24 @@ namespace RWAProjectApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Genre>> GetGenre(int id)
         {
-          if (_context.Genres == null)
-          {
-              return NotFound();
-          }
-            var genre = await _context.Genres.FindAsync(id);
-
-            if (genre == null)
+            try
             {
-                return NotFound();
-            }
+                var genre = await _context.Genres.FindAsync(id);
 
-            return genre;
+                if (genre == null)
+                {
+                    return NotFound("Genre not found in the database.");
+                }
+
+                return genre;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return StatusCode(500, "An internal server error occurred.");
+            }
         }
+
 
         // PUT: api/Genres/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -99,20 +104,25 @@ namespace RWAProjectApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGenre(int id)
         {
-            if (_context.Genres == null)
+            try
             {
-                return NotFound();
+                var genre = await _context.Genres.FindAsync(id);
+
+                if (genre == null)
+                {
+                    return NotFound("Genre not found in the database.");
+                }
+
+                _context.Genres.Remove(genre);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-            var genre = await _context.Genres.FindAsync(id);
-            if (genre == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return StatusCode(500, "Cannot delete a genre that is assigned to an existing video.");
             }
-
-            _context.Genres.Remove(genre);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool GenreExists(int id)

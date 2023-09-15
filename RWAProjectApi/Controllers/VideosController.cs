@@ -64,7 +64,7 @@ namespace RWAProjectApi.Controllers
                         ? videosQuery.OrderByDescending(v => v.TotalSeconds)
                         : videosQuery.OrderBy(v => v.TotalSeconds);
                     break;
-                default: // Sort by id
+                default: 
                     videosQuery = sortOrder.ToLower() == "desc"
                         ? videosQuery.OrderByDescending(v => v.Id)
                         : videosQuery.OrderBy(v => v.Id);

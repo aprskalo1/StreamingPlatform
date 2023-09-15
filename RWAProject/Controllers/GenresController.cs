@@ -140,21 +140,33 @@ namespace RWAProject.Controllers
         // POST: Genres/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<bool> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Genres == null)
+            try
             {
-                return false;
-            }
-            var genre = await _context.Genres.FindAsync(id);
-            if (genre != null)
-            {
+                if (_context.Genres == null)
+                {
+                    return BadRequest("Genres database is not available."); 
+                }
+
+                var genre = await _context.Genres.FindAsync(id);
+                if (genre == null)
+                {
+                    return NotFound("Genre not found in the database.");
+                }
+
                 _context.Genres.Remove(genre);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
             }
-            
-            await _context.SaveChangesAsync();
-            return true;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return StatusCode(500, "Cannot delete because this genre is assigned to an existing video.");
+            }
         }
+
 
         private bool GenreExists(int id)
         {
